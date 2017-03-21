@@ -36,7 +36,7 @@ artifacts {
 
 task lookForArtifacts {
     doLast {
-        def artifactName = ARTIFACT_NAME + '-' + ARTIFACT_VERSION + '.aar'
+        def artifactName = ARTIFACT_NAME + '-' + ARTIFACT_VERSION + '.' + ARTIFACT_PACKAGING
         def artifactPath = ARTIFACT_PACKAGE.replace(".", "/") + "/" + ARTIFACT_NAME + "/" + ARTIFACT_VERSION + "/" + artifactName
         def repositoryUrl = 'https://api.bitbucket.org/1.0/repositories/' + COMPANY + '/' + REPOSITORY_NAME + '/raw/releases/' + artifactPath
 
@@ -79,7 +79,8 @@ def urlExists(String repositoryUrl) {
     try {
         def connection = (HttpURLConnection) new URL(repositoryUrl).openConnection()
 
-        connection.setRequestProperty("Authorization", "Basic " + getBase64EncodedCredentials())
+        println(repositoryUrl);
+        connection.setRequestProperty("Authorization", "Bearer " + getOAuthToken())
         connection.setConnectTimeout(10000)
         connection.setReadTimeout(10000)
         connection.setRequestMethod("HEAD")
@@ -97,7 +98,54 @@ def urlExists(String repositoryUrl) {
     }
 }
 
-def getBase64EncodedCredentials() {
-    def s = USERNAME + ":" + PASSWORD;
-    return s.bytes.encodeBase64().toString()
+def getOAuthToken() {
+    try {
+        def bitbucketCustomerWithSecret = System.getenv("BITBUCKET_OAUTH_CUSTOMERSECRET") ?: null
+        println(bitbucketCustomerWithSecret)
+        if (bitbucketCustomerWithSecret == null) {
+          if (BITBUCKET_CONSUMER != null && BITBUCKET_SECRET != null) {
+              bitbucketCustomerWithSecret = BITBUCKET_CONSUMER + ":" + BITBUCKET_SECRET
+          }
+          else {
+            throw new RuntimeException("BITBUCKET_OAUTH_CUSTOMERSECRET containing OAuth2 comsumer:secret for " +
+              "Bitbucket must be defined as envrionment variable, or in BITBUCKET_CONSUMER/BITBUCKET_SECRET build settings")
+          }
+        }
+
+        def consumer = bitbucketCustomerWithSecret.bytes.encodeBase64().toString()
+        def connection = (HttpURLConnection) new URL("https://bitbucket.org/site/oauth2/access_token").openConnection()
+
+        def data = "grant_type=client_credentials"
+        connection.setRequestProperty("Authorization", "Basic " + consumer)
+        connection.setConnectTimeout(10000)
+        connection.setReadTimeout(10000)
+        connection.setRequestMethod("POST")
+        connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded")
+        connection.setDoOutput(true)
+        connection.getOutputStream().write(data.getBytes("UTF-8"))
+        connection.getInputStream()
+
+        def responseCode = connection.getResponseCode()
+        println("responseCode: " + responseCode)
+
+        if (responseCode == 401) {
+          throw new RuntimeException("Unauthorized BitBucket user - please provide valid username and password in gradle.properties file")
+        }
+
+       def br = new BufferedReader(new InputStreamReader((connection.getInputStream())))
+       def sb = new StringBuilder()
+       def line = ""
+       while ((line = br.readLine()) != null) {
+         sb.append(line)
+       }
+       br.close()
+       def returnData = sb.toString()
+
+       def slurper = new groovy.json.JsonSlurper()
+       def access_token = slurper.parseText(returnData).access_token
+       println("access_token: " + access_token)
+       return access_token
+      } catch (IOException ignored) {
+          return false
+      }
 }
