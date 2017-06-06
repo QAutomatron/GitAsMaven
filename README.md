@@ -12,7 +12,7 @@ BitBucket repository with a `releases` as its main branch, as described in [this
 1. Add the following plugin to the top of the `build.gradle` file in your library folder
 
   ```groovy
-  apply from: 'https://raw.githubusercontent.com/JeroenMols/GitAsMaven/master/publish-bitbucket.gradle'
+     apply from: 'https://github.com/QAutomatron/GitAsMaven/blob/master/publish-bitbucket.gradle'
   ```
 
 2. Create a `gradle.properties` file within your library folder with the following parameters:
@@ -32,19 +32,14 @@ BitBucket repository with a `releases` as its main branch, as described in [this
 3. Create a `gradle.properties` file in the root of your project (or better in the global `.gradle` folder on your system) with the following parameters
 
   ```groovy
-  BITBUCKET_CONSUMER=<oauth_key>
-  BITBUCKET_SECRET=<oauth_secret>
+  USERNAME=<oauth_key>
+  PASSWORD=<oauth_secret>
   ```
 
   Note: Do not check this file into version control!
-
-  Check [this blogpost](http://localhost:4000/blog/2015/08/13/artifactory2/) password to securely provide your username and password.
 
 4. Run the following command to upload a version to your Maven repository.
 
   ```bash
   ./gradlew uploadArchives
   ```
-
-## Questions
-@molsjeroen
