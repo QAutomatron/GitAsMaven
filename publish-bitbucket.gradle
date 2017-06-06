@@ -14,7 +14,10 @@ dependencies {
     deployLibrary "ar.com.synergian:wagon-git:0.3.0"
 }
 
-task sourcesJar(type: Jar)
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
 
 artifacts {
     archives sourcesJar
