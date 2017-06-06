@@ -32,8 +32,8 @@ BitBucket repository with a `releases` as its main branch, as described in [this
 3. Create a `gradle.properties` file in the root of your project (or better in the global `.gradle` folder on your system) with the following parameters
 
   ```groovy
-  USERNAME=<oauth_key>
-  PASSWORD=<oauth_secret>
+  USERNAME=<username>
+  PASSWORD=<password or application key>
   ```
 
   Note: Do not check this file into version control!
