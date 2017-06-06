@@ -21,7 +21,9 @@ BitBucket repository with a `releases` as its main branch, as described in [this
   ARTIFACT_VERSION=<version_here>
   ARTIFACT_NAME=<libraryname_here>
   ARTIFACT_PACKAGE=<packagename_here>
-  ARTIFACT_PACKAGING=aar //You could also use jar
+  ARTIFACT_PACKAGING=jar
+  BITBUCKET_CONSUMER=<oauth_key>
+  BITBUCKET_SECRET=<oauth_secret>
 
   COMPANY=<bitbucket_team/company_here> //Simply your username if you're not part of a team
   REPOSITORY_NAME=<bitbucket_reponame_here>
@@ -30,12 +32,12 @@ BitBucket repository with a `releases` as its main branch, as described in [this
 3. Create a `gradle.properties` file in the root of your project (or better in the global `.gradle` folder on your system) with the following parameters
 
   ```groovy
-  USERNAME=<username_here>
-  PASSWORD=<password_here>
+  BITBUCKET_CONSUMER=<oauth_key>
+  BITBUCKET_SECRET=<oauth_secret>
   ```
-  
-  Note: Do not check this file into version control! 
-  
+
+  Note: Do not check this file into version control!
+
   Check [this blogpost](http://localhost:4000/blog/2015/08/13/artifactory2/) password to securely provide your username and password.
 
 4. Run the following command to upload a version to your Maven repository.
